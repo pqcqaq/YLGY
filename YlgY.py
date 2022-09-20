@@ -44,21 +44,21 @@ headers_list = [
 #----------------------------------------------------------------------主循环------------------------------------------------------------
 flag = False
 class MyThread(threading.Thread):
+    print("开始尝试通关......")
     def run(self):
         global flags
         i = 1
         while (True):
             if flag:
-                print("开始尝试通关......")
                 try:
                     headers = {'User-Agent': random.choice(headers_list),
-                                't': token.get()}
+                                't': tokenL}
                     proxy = {
                         'http': random.choice(proxy_list)
                     }
-                    print("使用代理服务器："+ str(proxy))
+                    print("使用代理服务器：" + str(proxy))
                     r = requests.get(
-                        'https://cat-match.easygame2021.com/sheep/v1/game/game_over?rank_score=100&rank_state=1&rank_time=4026&rank_role=1&skin=1',
+                        'https://cat-match.easygame2021.com/sheep/v1/game/game_over?rank_score=1&rank_state=1&rank_time=4026&rank_role=1&skin=13',
                         headers=headers, timeout=10, proxies=proxy)
                     print("               第" + str(i) + "次" + " Successed")
                     Rut(True,i)
@@ -67,18 +67,24 @@ class MyThread(threading.Thread):
                     print("访问错误,暂停300秒.....")
                     Rut(False, i)
                     time.sleep(300)
+                except requests.exceptions.ReadTimeout:
+                    print("连接超时，5秒后重试")
+                    Rut(False, i)
+                    time.sleep(5)
+                except:
+                    continue
         pass
 thread = MyThread()
 thread.daemon = True
 #-------------------------------------------------------------------按钮函数-------------------------------------------------------------------
 def Exit():
-    global flag
-    flag = False
     root.destroy()
 def Switch():
     global flag
+    global tokenL
     if not flag:
         print("开始")
+        tokenL = token.get()
         try:
             thread.start()
             print("Start Running...")
@@ -118,5 +124,6 @@ tokenStr = StringVar(value='Token')
 token = Entry(root,textvariable=tokenStr)
 token.grid(row=0,column=1,sticky=E)
 lbRut1 = Label(root, text="运行结果:", font=("黑体", 16)).place(x = 16,y = 40)
+tokenL = token.get()
 
 root.mainloop()
